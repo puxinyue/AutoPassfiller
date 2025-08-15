@@ -295,10 +295,16 @@ class FormDetector {
   setInputValues(usernameField, passwordField, username, password) {
     // 处理用户名字段（支持单个或数组）
     if (username) {
-      const usernameFields = Array.isArray(usernameField) ? usernameField : [usernameField].filter(Boolean);
+      const usernameFields = Array.isArray(usernameField)
+        ? usernameField
+        : [usernameField].filter(Boolean);
       usernameFields.forEach((field, index) => {
         if (field) {
-          console.log(`📝 Filling username field ${index + 1}/${usernameFields.length}: ${field.name || field.id || 'unnamed'}`);
+          console.log(
+            `📝 Filling username field ${index + 1}/${usernameFields.length}: ${
+              field.name || field.id || "unnamed"
+            }`
+          );
           this.fillField(field, username);
         }
       });
@@ -306,10 +312,16 @@ class FormDetector {
 
     // 处理密码字段（支持单个或数组）
     if (password) {
-      const passwordFields = Array.isArray(passwordField) ? passwordField : [passwordField].filter(Boolean);
+      const passwordFields = Array.isArray(passwordField)
+        ? passwordField
+        : [passwordField].filter(Boolean);
       passwordFields.forEach((field, index) => {
         if (field) {
-          console.log(`🔐 Filling password field ${index + 1}/${passwordFields.length}: ${field.name || field.id || 'unnamed'}`);
+          console.log(
+            `🔐 Filling password field ${index + 1}/${passwordFields.length}: ${
+              field.name || field.id || "unnamed"
+            }`
+          );
           this.fillField(field, password);
         }
       });
@@ -648,25 +660,25 @@ class FormDetector {
    * 查找页面中的输入框（优化版本 - 返回所有匹配的字段）
    */
   findInputFields() {
-    console.log('🔍 Searching for input fields on page...');
-    
+    console.log("🔍 Searching for input fields on page...");
+
     // 等待页面加载完成
-    if (document.readyState === 'loading') {
-      console.log('⏳ Page still loading, waiting...');
-      return new Promise(resolve => {
-        document.addEventListener('DOMContentLoaded', () => {
+    if (document.readyState === "loading") {
+      console.log("⏳ Page still loading, waiting...");
+      return new Promise((resolve) => {
+        document.addEventListener("DOMContentLoaded", () => {
           resolve(this.findInputFields());
         });
       });
     }
-    
+
     const inputs = document.querySelectorAll("input");
     let usernameFields = [];
     let passwordFields = [];
     let submitButton = null;
-    
+
     console.log(`🔍 Found ${inputs.length} input fields on page`);
-    
+    let isUsernameField = false;
     inputs.forEach((input) => {
       const type = input.type.toLowerCase();
       const name = (input.name || "").toLowerCase();
@@ -678,23 +690,22 @@ class FormDetector {
       // 检测密码字段 - 收集所有password类型的输入框
       if (type === "password") {
         passwordFields.push(input);
-        console.log(`🔒 Found password field: ${input.name || input.id || 'unnamed'}`);
+        console.log(
+          `🔒 Found password field: ${input.name || input.id || "unnamed"}`
+        );
       }
       // 检测用户名/邮箱字段 - 收集所有匹配的输入框
       else if (type === "text" || type === "email") {
-        const isUsernameField =
+        isUsernameField =
           name.includes("user") ||
           name.includes("email") ||
           name.includes("login") ||
           name.includes("account") ||
+          name.includes("username") ||
           id.includes("user") ||
           id.includes("email") ||
           id.includes("login") ||
           id.includes("account") ||
-          placeholder.includes("user") ||
-          placeholder.includes("email") ||
-          placeholder.includes("login") ||
-          placeholder.includes("account") ||
           ariaLabel.includes("user") ||
           ariaLabel.includes("email") ||
           ariaLabel.includes("login") ||
@@ -706,7 +717,9 @@ class FormDetector {
 
         if (isUsernameField) {
           usernameFields.push(input);
-          console.log(`👤 Found username field: ${input.name || input.id || 'unnamed'}`);
+          console.log(
+            `👤 Found username field: ${input.name || input.id || "unnamed"}`
+          );
         }
       }
     });
@@ -728,14 +741,16 @@ class FormDetector {
       }
     });
 
-    console.log(`✅ Found ${usernameFields.length} username fields, ${passwordFields.length} password fields`);
+    console.log(
+      `✅ Found ${usernameFields.length} username fields, ${passwordFields.length} password fields`
+    );
 
     return {
-      usernameField: usernameFields[0] || null,  // 保持向后兼容
-      passwordField: passwordFields[0] || null,   // 保持向后兼容
-      usernameFields: usernameFields,  // 所有用户名字段
-      passwordFields: passwordFields,  // 所有密码字段
-      submitButton
+      usernameField: usernameFields[0] || null, // 保持向后兼容
+      passwordField: passwordFields[0] || null, // 保持向后兼容
+      usernameFields: usernameFields, // 所有用户名字段
+      passwordFields: passwordFields, // 所有密码字段
+      submitButton,
     };
   }
 
