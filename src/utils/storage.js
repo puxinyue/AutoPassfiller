@@ -11,12 +11,12 @@ class StorageUtils {
     return new Promise((resolve, reject) => {
       chrome.storage.local.set({ [key]: value }, () => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+          reject(new Error(chrome.runtime.lastError.message))
         } else {
-          resolve();
+          resolve()
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -28,12 +28,12 @@ class StorageUtils {
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(key, (result) => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+          reject(new Error(chrome.runtime.lastError.message))
         } else {
-          resolve(typeof key === 'string' ? result[key] : result);
+          resolve(typeof key === "string" ? result[key] : result)
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -45,12 +45,12 @@ class StorageUtils {
     return new Promise((resolve, reject) => {
       chrome.storage.local.remove(key, () => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+          reject(new Error(chrome.runtime.lastError.message))
         } else {
-          resolve();
+          resolve()
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -61,12 +61,12 @@ class StorageUtils {
     return new Promise((resolve, reject) => {
       chrome.storage.local.clear(() => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+          reject(new Error(chrome.runtime.lastError.message))
         } else {
-          resolve();
+          resolve()
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -77,12 +77,12 @@ class StorageUtils {
     return new Promise((resolve, reject) => {
       chrome.storage.local.getBytesInUse(null, (bytes) => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+          reject(new Error(chrome.runtime.lastError.message))
         } else {
-          resolve(bytes);
+          resolve(bytes)
         }
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -91,25 +91,26 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async saveCredential(credential) {
-    const credentials = await this.getCredentials();
+    const credentials = await this.getCredentials()
     const existingIndex = credentials.findIndex(
-      c => c.domain === credential.domain && c.username === credential.username
-    );
+      (c) =>
+        c.domain === credential.domain && c.username === credential.username
+    )
 
     if (existingIndex >= 0) {
       credentials[existingIndex] = {
         ...credentials[existingIndex],
         ...credential,
-        updatedAt: Date.now()
-      };
+        updatedAt: Date.now(),
+      }
     } else {
-      credential.id = this.generateId();
-      credential.createdAt = Date.now();
-      credential.updatedAt = Date.now();
-      credentials.push(credential);
+      credential.id = this.generateId()
+      credential.createdAt = Date.now()
+      credential.updatedAt = Date.now()
+      credentials.push(credential)
     }
 
-    await this.set('credentials', credentials);
+    await this.set("credentials", credentials)
   }
 
   /**
@@ -117,8 +118,8 @@ class StorageUtils {
    * @returns {Promise<Array>} 密码条目数组
    */
   static async getCredentials() {
-    const credentials = await this.get('credentials');
-    return credentials || [];
+    const credentials = await this.get("credentials")
+    return credentials || []
   }
 
   /**
@@ -127,8 +128,8 @@ class StorageUtils {
    * @returns {Promise<Array>} 匹配的密码条目
    */
   static async getCredentialsByDomain(domain) {
-    const credentials = await this.getCredentials();
-    return credentials.filter(c => c.domain === domain);
+    const credentials = await this.getCredentials()
+    return credentials.filter((c) => c.domain === domain)
   }
 
   /**
@@ -137,9 +138,9 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async deleteCredential(id) {
-    const credentials = await this.getCredentials();
-    const filtered = credentials.filter(c => c.id !== id);
-    await this.set('credentials', filtered);
+    const credentials = await this.getCredentials()
+    const filtered = credentials.filter((c) => c.id !== id)
+    await this.set("credentials", filtered)
   }
 
   /**
@@ -149,16 +150,16 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async updateCredential(id, updates) {
-    const credentials = await this.getCredentials();
-    const index = credentials.findIndex(c => c.id === id);
-    
+    const credentials = await this.getCredentials()
+    const index = credentials.findIndex((c) => c.id === id)
+
     if (index >= 0) {
       credentials[index] = {
         ...credentials[index],
         ...updates,
-        updatedAt: Date.now()
-      };
-      await this.set('credentials', credentials);
+        updatedAt: Date.now(),
+      }
+      await this.set("credentials", credentials)
     }
   }
 
@@ -168,9 +169,9 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async saveSettings(settings) {
-    const currentSettings = await this.getSettings();
-    const newSettings = { ...currentSettings, ...settings };
-    await this.set('settings', newSettings);
+    const currentSettings = await this.getSettings()
+    const newSettings = { ...currentSettings, ...settings }
+    await this.set("settings", newSettings)
   }
 
   /**
@@ -178,14 +179,14 @@ class StorageUtils {
    * @returns {Promise<Object>} 设置对象
    */
   static async getSettings() {
-    const settings = await this.get('settings');
+    const settings = await this.get("settings")
     return {
-      theme: 'light',
+      theme: "light",
       autoLock: true,
       lockTimeout: 15,
       autoFill: true,
-      ...settings
-    };
+      ...settings,
+    }
   }
 
   /**
@@ -194,10 +195,10 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async saveSession(session) {
-    await this.set('session', {
+    await this.set("session", {
       ...session,
-      lastActivity: Date.now()
-    });
+      lastActivity: Date.now(),
+    })
   }
 
   /**
@@ -205,7 +206,7 @@ class StorageUtils {
    * @returns {Promise<Object|null>} 会话数据
    */
   static async getSession() {
-    return await this.get('session');
+    return await this.get("session")
   }
 
   /**
@@ -213,7 +214,7 @@ class StorageUtils {
    * @returns {Promise<void>}
    */
   static async clearSession() {
-    await this.remove('session');
+    await this.remove("session")
   }
 
   /**
@@ -221,25 +222,25 @@ class StorageUtils {
    * @returns {Promise<boolean>} 会话是否有效
    */
   static async isSessionValid() {
-    const session = await this.getSession();
+    const session = await this.getSession()
     if (!session || !session.isUnlocked) {
-      return false;
+      return false
     }
 
-    const settings = await this.getSettings();
+    const settings = await this.getSettings()
     if (!settings.autoLock) {
-      return true;
+      return true
     }
 
-    const timeoutMs = settings.lockTimeout * 60 * 1000;
-    const isExpired = (Date.now() - session.lastActivity) > timeoutMs;
-    
+    const timeoutMs = settings.lockTimeout * 60 * 1000
+    const isExpired = Date.now() - session.lastActivity > timeoutMs
+
     if (isExpired) {
-      await this.clearSession();
-      return false;
+      await this.clearSession()
+      return false
     }
 
-    return true;
+    return true
   }
 
   /**
@@ -249,15 +250,15 @@ class StorageUtils {
   static async exportData() {
     const [credentials, settings] = await Promise.all([
       this.getCredentials(),
-      this.getSettings()
-    ]);
+      this.getSettings(),
+    ])
 
     return {
       credentials,
       settings,
       exportedAt: Date.now(),
-      version: '1.0.0'
-    };
+      version: "1.0.0",
+    }
   }
 
   /**
@@ -267,10 +268,24 @@ class StorageUtils {
    */
   static async importData(data) {
     if (data.credentials) {
-      await this.set('credentials', data.credentials);
+      // 获取现有凭据
+      const existingCredentials = await this.getCredentials()
+
+      // 为导入的凭据生成新ID，避免ID冲突
+      const importedCredentials = data.credentials.map((credential) => ({
+        ...credential,
+        id: this.generateId(),
+        importedAt: Date.now(),
+      }))
+
+      // 合并现有凭据和导入的凭据
+      const mergedCredentials = [...existingCredentials, ...importedCredentials]
+
+      // 保存合并后的凭据
+      await this.set("credentials", mergedCredentials)
     }
     if (data.settings) {
-      await this.saveSettings(data.settings);
+      await this.saveSettings(data.settings)
     }
   }
 
@@ -279,7 +294,7 @@ class StorageUtils {
    * @returns {string} 唯一ID
    */
   static generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
   }
 
   /**
@@ -287,17 +302,18 @@ class StorageUtils {
    * @returns {Promise<Object>} 统计信息
    */
   static async getStats() {
-    const credentials = await this.getCredentials();
-    const domains = [...new Set(credentials.map(c => c.domain))];
-    
+    const credentials = await this.getCredentials()
+    const domains = [...new Set(credentials.map((c) => c.domain))]
+
     return {
       totalCredentials: credentials.length,
       totalDomains: domains.length,
-      lastUpdated: credentials.length > 0 
-        ? Math.max(...credentials.map(c => c.updatedAt || c.createdAt))
-        : null
-    };
+      lastUpdated:
+        credentials.length > 0
+          ? Math.max(...credentials.map((c) => c.updatedAt || c.createdAt))
+          : null,
+    }
   }
 }
 
-export default StorageUtils;
+export default StorageUtils
