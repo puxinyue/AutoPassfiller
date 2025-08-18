@@ -118,9 +118,23 @@ const OptionsApp = () => {
       const text = await file.text()
       const data = JSON.parse(text)
 
+      // 检查是否包含明文密码
+      let masterPassword = null
+      if (data.credentials && data.credentials.some(cred => cred.password && !cred.encryptedPassword)) {
+        masterPassword = prompt("检测到明文密码，请输入主密码以加密导入的数据:")
+        if (!masterPassword) {
+          showNotification("导入已取消", "info")
+          event.target.value = ""
+          return
+        }
+      }
+
       const response = await sendMessage({
         type: "IMPORT_DATA",
-        data: data,
+        data: {
+          importData: data,
+          masterPassword: masterPassword
+        },
       })
 
       if (response.success) {

@@ -1,180 +1,7 @@
 // 后台脚本 (Service Worker) - 处理会话管理、存储管理和消息通信
 
-// 内联加密工具函数
-class CryptoUtils {
-  static generateSalt() {
-    return crypto.getRandomValues(new Uint8Array(16))
-  }
-
-  static generateIV() {
-    return crypto.getRandomValues(new Uint8Array(12))
-  }
-
-  static async deriveKey(password, salt) {
-    const encoder = new TextEncoder()
-    const keyMaterial = await crypto.subtle.importKey(
-      "raw",
-      encoder.encode(password),
-      { name: "PBKDF2" },
-      false,
-      ["deriveBits", "deriveKey"]
-    )
-
-    return crypto.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt: salt,
-        iterations: 100000,
-        hash: "SHA-256",
-      },
-      keyMaterial,
-      { name: "AES-GCM", length: 256 },
-      true,
-      ["encrypt", "decrypt"]
-    )
-  }
-
-  static async encrypt(plaintext, password) {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(plaintext)
-
-    const salt = this.generateSalt()
-    const iv = this.generateIV()
-    const key = await this.deriveKey(password, salt)
-
-    const encrypted = await crypto.subtle.encrypt(
-      { name: "AES-GCM", iv: iv },
-      key,
-      data
-    )
-
-    const combined = new Uint8Array(
-      salt.length + iv.length + encrypted.byteLength
-    )
-    combined.set(salt, 0)
-    combined.set(iv, salt.length)
-    combined.set(new Uint8Array(encrypted), salt.length + iv.length)
-
-    return btoa(String.fromCharCode(...combined))
-  }
-
-  static async decrypt(encryptedData, password) {
-    try {
-      const combined = new Uint8Array(
-        atob(encryptedData)
-          .split("")
-          .map((char) => char.charCodeAt(0))
-      )
-
-      const salt = combined.slice(0, 16)
-      const iv = combined.slice(16, 28)
-      const encrypted = combined.slice(28)
-
-      const key = await this.deriveKey(password, salt)
-
-      const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: iv },
-        key,
-        encrypted
-      )
-
-      const decoder = new TextDecoder()
-      return decoder.decode(decrypted)
-    } catch (error) {
-      throw new Error("解密失败：密码错误或数据损坏")
-    }
-  }
-
-  static async verifyPassword(password, testData) {
-    try {
-      await this.decrypt(testData, password)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  static evaluatePasswordStrength(password) {
-    let score = 0
-    const feedback = []
-
-    if (password.length >= 8) {
-      score += 20
-    } else {
-      feedback.push("密码至少需要8个字符")
-    }
-
-    if (password.length >= 12) {
-      score += 10
-    }
-
-    if (/[a-z]/.test(password)) {
-      score += 10
-    } else {
-      feedback.push("包含小写字母")
-    }
-
-    if (/[A-Z]/.test(password)) {
-      score += 10
-    } else {
-      feedback.push("包含大写字母")
-    }
-
-    if (/\d/.test(password)) {
-      score += 10
-    } else {
-      feedback.push("包含数字")
-    }
-
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      score += 20
-    } else {
-      feedback.push("包含特殊字符")
-    }
-
-    if (password.length >= 16) {
-      score += 20
-    }
-
-    let level = "weak"
-    if (score >= 80) level = "strong"
-    else if (score >= 60) level = "medium"
-
-    return {
-      score: Math.min(score, 100),
-      level,
-      feedback,
-    }
-  }
-
-  static generatePassword(length = 16, options = {}) {
-    const {
-      uppercase = true,
-      lowercase = true,
-      numbers = true,
-      symbols = true,
-      excludeSimilar = true,
-    } = options
-
-    let charset = ""
-    if (lowercase) charset += "abcdefghijklmnopqrstuvwxyz"
-    if (uppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    if (numbers) charset += "0123456789"
-    if (symbols) charset += "!@#$%^&*()_+-=[]{}|;:,.<>?"
-
-    if (excludeSimilar) {
-      charset = charset.replace(/[il1Lo0O]/g, "")
-    }
-
-    let password = ""
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length)
-      password += charset[randomIndex]
-    }
-
-    return password
-  }
-}
+// 导入加密工具
+import CryptoUtils from './utils/crypto.js'
 
 // 内联存储工具函数
 class StorageUtils {
@@ -335,17 +162,37 @@ class StorageUtils {
     }
   }
 
-  static async importData(data) {
+  static async importData(data, masterPassword = null) {
     if (data.credentials) {
       // 获取现有凭据
       const existingCredentials = await this.getCredentials()
 
-      // 为导入的凭据生成新ID，避免ID冲突
-      const importedCredentials = data.credentials.map((credential) => ({
-        ...credential,
-        id: this.generateId(),
-        importedAt: Date.now(),
-      }))
+      // 处理导入的凭据
+      const importedCredentials = []
+      
+      for (const credential of data.credentials) {
+        const processedCredential = {
+          ...credential,
+          id: this.generateId(),
+          importedAt: Date.now(),
+        }
+
+        // 如果凭据包含明文密码，需要加密
+        if (credential.password && !credential.encryptedPassword) {
+          if (!masterPassword) {
+            throw new Error('导入包含明文密码的数据需要提供主密码')
+          }
+          // 加密明文密码
+          processedCredential.encryptedPassword = await CryptoUtils.encrypt(
+            credential.password,
+            masterPassword
+          )
+          // 删除明文密码
+          delete processedCredential.password
+        }
+
+        importedCredentials.push(processedCredential)
+      }
 
       // 合并现有凭据和导入的凭据
       const mergedCredentials = [...existingCredentials, ...importedCredentials]
@@ -359,7 +206,7 @@ class StorageUtils {
   }
 
   static generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 11)
   }
 
   static async getStats() {
@@ -401,7 +248,7 @@ class BackgroundService {
   /**
    * 处理消息
    */
-  handleMessage(message, sender, sendResponse) {
+  handleMessage(message, _sender, sendResponse) {
     const handleAsync = async () => {
       try {
         const { type, data } = message
@@ -409,7 +256,14 @@ class BackgroundService {
         switch (type) {
           case "CHECK_SESSION":
             const isValid = await StorageUtils.isSessionValid()
-            return { success: true, data: { isValid } }
+            const sessionData = await StorageUtils.getSession()
+            return { 
+              success: true, 
+              data: { 
+                isValid,
+                masterPassword: isValid && sessionData ? sessionData.masterPassword : null
+              } 
+            }
 
           case "LOGIN":
             return await this.handleLogin(data)
@@ -460,7 +314,7 @@ class BackgroundService {
             return { success: true, data: exportData }
 
           case "IMPORT_DATA":
-            await StorageUtils.importData(data)
+            await StorageUtils.importData(data.importData, data.masterPassword)
             return { success: true }
 
           case "GET_SETTINGS":
@@ -477,6 +331,14 @@ class BackgroundService {
             await StorageUtils.remove("masterPasswordHash")
             await StorageUtils.clearSession()
             return { success: true }
+
+          case "DECRYPT_PASSWORD":
+            const session = await StorageUtils.getSession()
+            if (!session || !session.isUnlocked || !session.masterPassword) {
+              throw new Error("会话已过期，请重新登录")
+            }
+            const decryptedPassword = await CryptoUtils.decrypt(data.encryptedData, session.masterPassword)
+            return { success: true, data: decryptedPassword }
 
           default:
             return { success: false, error: "Unknown message type: " + type }
@@ -512,12 +374,16 @@ class BackgroundService {
 
       if (!settings) {
         // 首次设置主密码
-        const testData = await CryptoUtils.encrypt("test", password)
-        await StorageUtils.set("masterPasswordHash", testData)
+        const masterPassword = await CryptoUtils.encrypt(
+          "ksjdfsdbfshsd",
+          password
+        )
+        await StorageUtils.set("masterPasswordHash", masterPassword)
 
         await StorageUtils.saveSession({
           isUnlocked: true,
           lastActivity: Date.now(),
+          masterPassword: password, // 存储主密码用于后续解密
         })
 
         return { success: true, data: { isFirstTime: true } }
@@ -529,6 +395,7 @@ class BackgroundService {
           await StorageUtils.saveSession({
             isUnlocked: true,
             lastActivity: Date.now(),
+            masterPassword: password, // 存储主密码用于后续解密
           })
 
           return { success: true, data: { isFirstTime: false } }

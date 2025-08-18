@@ -16,6 +16,7 @@ import CredentialList from "./components/CredentialList"
 import AddCredentialModal from "./components/AddCredentialModal"
 import EditCredentialModal from "./components/EditCredentialModal"
 import { sendMessage, getCurrentTab } from "./utils/api"
+import MessageToast from "./components/MessageToast"
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -26,6 +27,7 @@ const App = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingCredential, setEditingCredential] = useState(null)
   const [masterPassword, setMasterPassword] = useState("")
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     checkAuthStatus()
@@ -37,6 +39,9 @@ const App = () => {
       const response = await sendMessage({ type: "CHECK_SESSION" })
       if (response.success && response.data.isValid) {
         setIsAuthenticated(true)
+        if (response.data.masterPassword) {
+          setMasterPassword(response.data.masterPassword)
+        }
         await loadCredentials()
       }
     } catch (error) {
@@ -166,18 +171,21 @@ const App = () => {
 
   const handleCopyPassword = async (credential) => {
     try {
-      // 解密密码
-      const CryptoUtils = (await import("../utils/crypto.js")).default
-      const password = await CryptoUtils.decrypt(
-        credential.encryptedPassword,
-        masterPassword
-      )
-      debugger
-      // 复制到剪贴板
-      await navigator.clipboard.writeText(password)
-
-      // 显示成功提示
-      showNotification("密码已复制到剪贴板")
+      // 通过后台脚本解密密码
+      const response = await sendMessage({
+        type: "DECRYPT_PASSWORD",
+        data: {
+          encryptedData: credential.encryptedPassword
+        }
+      })
+      
+      if (response.success) {
+        // 复制到剪贴板
+        await navigator.clipboard.writeText(response.data)
+        showNotification("密码已复制到剪贴板")
+      } else {
+        showNotification("解密失败: " + response.error, "error")
+      }
     } catch (error) {
       console.error("复制密码失败:", error)
       showNotification("复制失败", "error")
@@ -200,6 +208,9 @@ const App = () => {
           masterPassword,
         },
       })
+      console.log("tab====>", tab)
+      console.log("credential====>", credential)
+      console.log("masterPassword====>", masterPassword)
 
       // 关闭弹窗
       window.close()
@@ -210,8 +221,7 @@ const App = () => {
   }
 
   const showNotification = (message, type = "success") => {
-    // 这里可以实现通知组件
-    console.log(`${type}: ${message}`)
+    setToast({ message, type })
   }
 
   const filteredCredentials = credentials.filter((cred) => {
@@ -323,6 +333,14 @@ const App = () => {
           credential={editingCredential}
           onSave={handleEditCredential}
           onClose={() => setEditingCredential(null)}
+        />
+      )}
+
+      {toast && (
+        <MessageToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
