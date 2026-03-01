@@ -135,13 +135,13 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
 
   return (
     <div className="modal-backdrop fade-in">
-      <div className="modal slide-up">
-        <div className="modal-header">
+      <div className="modal slide-up dark:bg-gray-800 dark:border-gray-700">
+        <div className="modal-header dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">编辑密码</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">编辑密码</h2>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-1 text-gray-400 hover:text-gray-600 transition-colors dark:hover:text-gray-300"
               disabled={loading}
             >
               <X className="w-5 h-5" />
@@ -151,14 +151,14 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
 
         <div className="modal-body">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md dark:bg-red-900/20 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                 网站域名
               </label>
               <input
@@ -168,14 +168,14 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
                 value={formData.domain}
                 onChange={handleChange}
                 placeholder="例如: google.com"
-                className="input"
+                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 disabled={loading}
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                 用户名/邮箱
               </label>
               <input
@@ -185,7 +185,7 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="用户名或邮箱地址"
-                className="input"
+                className="input dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                 disabled={loading}
                 required
               />
@@ -193,8 +193,8 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  新密码 <span className="text-xs text-gray-500">(留空保持不变)</span>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  新密码 <span className="text-xs text-gray-500 dark:text-gray-400">(留空保持不变)</span>
                 </label>
                 <button
                   type="button"
@@ -214,40 +214,40 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="输入新密码或保持为空"
-                  className="input"
+                  className="input dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   disabled={loading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              
+
               {passwordStrength && passwordChanged && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-500">密码强度</span>
+                    <span className="text-gray-500 dark:text-gray-400">密码强度</span>
                     <span className={`font-medium ${
-                      passwordStrength.level === 'strong' ? 'text-green-600' : 
-                      passwordStrength.level === 'medium' ? 'text-yellow-600' : 'text-red-600'
+                      passwordStrength.level === 'strong' ? 'text-green-600 dark:text-green-400' :
+                      passwordStrength.level === 'medium' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
                     }`}>
                       {getStrengthText(passwordStrength.level)}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
+                  <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-600">
+                    <div
                       className={`h-2 rounded-full transition-all duration-300 ${getStrengthColor(passwordStrength.level)}`}
                       style={{ width: `${passwordStrength.score}%` }}
                     ></div>
                   </div>
                   {passwordStrength.feedback.length > 0 && (
                     <div className="mt-1">
-                      <p className="text-xs text-gray-500">建议:</p>
-                      <ul className="text-xs text-gray-500 list-disc list-inside">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">建议:</p>
+                      <ul className="text-xs text-gray-500 list-disc list-inside dark:text-gray-400">
                         {passwordStrength.feedback.map((feedback, index) => (
                           <li key={index}>{feedback}</li>
                         ))}
@@ -259,14 +259,14 @@ const EditCredentialModal = ({ credential, onSave, onClose }) => {
             </div>
           </form>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-xs text-blue-700">
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md dark:bg-blue-900/20 dark:border-blue-800">
+            <p className="text-xs text-blue-700 dark:text-blue-400">
               <strong>提示:</strong> 如果不需要更改密码，请将密码字段留空。
             </p>
           </div>
         </div>
 
-        <div className="modal-footer">
+        <div className="modal-footer dark:border-gray-700">
           <button
             type="button"
             onClick={onClose}

@@ -28,10 +28,12 @@ const App = () => {
   const [editingCredential, setEditingCredential] = useState(null)
   const [masterPassword, setMasterPassword] = useState("")
   const [toast, setToast] = useState(null)
+  const [theme, setTheme] = useState("light")
 
   useEffect(() => {
     checkAuthStatus()
     getCurrentDomainAndCredentials()
+    loadSettings()
   }, [])
 
   const checkAuthStatus = async () => {
@@ -71,6 +73,17 @@ const App = () => {
       }
     } catch (error) {
       console.error("加载凭据失败:", error)
+    }
+  }
+
+  const loadSettings = async () => {
+    try {
+      const response = await sendMessage({ type: "GET_SETTINGS" })
+      if (response.success) {
+        setTheme(response.data.theme || "light")
+      }
+    } catch (error) {
+      console.error("加载设置失败:", error)
     }
   }
 
@@ -242,48 +255,48 @@ const App = () => {
 
   if (loading) {
     return (
-      <div className="w-popup h-popup flex items-center justify-center bg-gray-50">
+      <div className={`w-popup h-popup flex items-center justify-center bg-gray-50 ${theme === 'dark' ? 'dark bg-gray-900' : ''}`}>
         <div className="flex flex-col items-center space-y-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-          <p className="text-sm text-gray-600">加载中...</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">加载中...</p>
         </div>
       </div>
     )
   }
 
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />
+    return <LoginScreen onLogin={handleLogin} theme={theme} />
   }
 
   return (
-    <div className="w-popup h-popup bg-gray-50 flex flex-col">
+    <div className={`w-popup h-popup bg-gray-50 flex flex-col ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Shield className="w-5 h-5 text-primary-500" />
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               AutoPassfiller
             </h1>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="p-2 text-gray-500 hover:text-primary-500 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-gray-500 hover:text-primary-500 hover:bg-gray-100 rounded-md transition-colors dark:text-gray-400 dark:hover:bg-gray-700"
               title="添加密码"
             >
               <Plus className="w-4 h-4" />
             </button>
             <button
               onClick={() => chrome.runtime.openOptionsPage()}
-              className="p-2 text-gray-500 hover:text-primary-500 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-gray-500 hover:text-primary-500 hover:bg-gray-100 rounded-md transition-colors dark:text-gray-400 dark:hover:bg-gray-700"
               title="设置"
             >
               <Settings className="w-4 h-4" />
             </button>
             <button
               onClick={handleLogout}
-              className="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-md transition-colors dark:text-gray-400 dark:hover:bg-gray-700"
               title="锁定"
             >
               <Lock className="w-4 h-4" />
@@ -293,7 +306,7 @@ const App = () => {
       </header>
 
       {/* Search */}
-      <div className="px-4 py-3 bg-white border-b border-gray-200">
+      <div className="px-4 py-3 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -301,13 +314,13 @@ const App = () => {
             placeholder="搜索密码..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           />
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <CredentialList
           currentDomainCredentials={currentDomainCredentials}
           otherCredentials={otherCredentials}

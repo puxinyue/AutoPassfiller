@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
-const LoginScreen = ({ onLogin }) => {
+const LoginScreen = ({ onLogin, theme }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -9,7 +9,7 @@ const LoginScreen = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!password.trim()) {
       setError('请输入密码');
       return;
@@ -20,7 +20,7 @@ const LoginScreen = ({ onLogin }) => {
 
     try {
       const result = await onLogin(password);
-      
+
       if (!result.success) {
         setError(result.error || '登录失败');
       }
@@ -32,22 +32,22 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <div className="w-popup h-popup bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
+    <div className={`w-popup h-popup bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center ${theme === 'dark' ? 'dark from-gray-900 to-gray-800' : ''}`}>
       <div className="w-full max-w-sm mx-4">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 dark:bg-gray-800 dark:border dark:border-gray-700">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500 rounded-full mb-4">
               <Shield className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">AutoPassfiller</h1>
-            <p className="text-sm text-gray-600 mt-1">安全密码管理器</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AutoPassfiller</h1>
+            <p className="text-sm text-gray-600 mt-1 dark:text-gray-400">安全密码管理器</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                 主密码
               </label>
               <div className="relative">
@@ -57,14 +57,14 @@ const LoginScreen = ({ onLogin }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="请输入主密码"
-                  className={`input ${error ? 'input-error' : ''}`}
+                  className={`input ${error ? 'input-error' : ''} dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400`}
                   disabled={loading}
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   disabled={loading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -93,7 +93,7 @@ const LoginScreen = ({ onLogin }) => {
 
           {/* Help */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               首次使用？输入一个安全的主密码来开始使用
             </p>
           </div>
@@ -101,7 +101,7 @@ const LoginScreen = ({ onLogin }) => {
 
         {/* Footer */}
         <div className="text-center mt-4">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             所有密码均在本地加密存储
           </p>
         </div>

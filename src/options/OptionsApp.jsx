@@ -187,17 +187,17 @@ const OptionsApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen bg-gray-50 ${settings.theme === 'dark' ? 'dark' : ''}`}>
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white shadow dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center space-x-3">
             <Shield className="w-8 h-8 text-primary-500" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 AutoPassfiller
               </h1>
-              <p className="text-sm text-gray-600">安全密码管理器 - 设置</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">安全密码管理器 - 设置</p>
             </div>
           </div>
         </div>
@@ -223,8 +223,8 @@ const OptionsApp = () => {
           {/* 设置面板 */}
           <div className="lg:col-span-2 space-y-6">
             {/* 基本设置 */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="card p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center dark:text-white">
                 <Settings className="w-5 h-5 mr-2" />
                 基本设置
               </h2>
@@ -234,15 +234,15 @@ const OptionsApp = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     {settings.theme === "dark" ? (
-                      <Moon className="w-5 h-5 text-gray-600" />
+                      <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     ) : (
-                      <Sun className="w-5 h-5 text-gray-600" />
+                      <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     )}
                     <div>
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         深色模式
                       </label>
-                      <p className="text-xs text-gray-500">切换应用程序外观</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">切换应用程序外观</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -265,12 +265,12 @@ const OptionsApp = () => {
                 {/* 自动锁定 */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Lock className="w-5 h-5 text-gray-600" />
+                    <Lock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <div>
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         自动锁定
                       </label>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         闲置一段时间后自动锁定
                       </p>
                     </div>
@@ -293,12 +293,12 @@ const OptionsApp = () => {
                 {settings.autoLock && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <Clock className="w-5 h-5 text-gray-600" />
+                      <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                       <div>
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           锁定时间
                         </label>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           闲置多长时间后锁定（分钟）
                         </p>
                       </div>
@@ -311,7 +311,7 @@ const OptionsApp = () => {
                           parseInt(e.target.value)
                         )
                       }
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       disabled={saving}
                     >
                       <option value={5}>5 分钟</option>
@@ -326,12 +326,12 @@ const OptionsApp = () => {
                 {/* 自动填充 */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Settings className="w-5 h-5 text-gray-600" />
+                    <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <div>
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         自动填充
                       </label>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         启用自动表单填充功能
                       </p>
                     </div>
@@ -353,20 +353,20 @@ const OptionsApp = () => {
             </div>
 
             {/* 数据管理 */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="card p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">
                 数据管理
               </h2>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md dark:bg-gray-700">
                   <div className="flex items-center space-x-3">
-                    <Download className="w-5 h-5 text-gray-600" />
+                    <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <div>
-                      <h3 className="text-sm font-medium text-gray-700">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         导出数据
                       </h3>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         将所有密码和设置导出为文件
                       </p>
                     </div>
@@ -376,14 +376,14 @@ const OptionsApp = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md dark:bg-gray-700">
                   <div className="flex items-center space-x-3">
-                    <Upload className="w-5 h-5 text-gray-600" />
+                    <Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     <div>
-                      <h3 className="text-sm font-medium text-gray-700">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         导入数据
                       </h3>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         从备份文件恢复数据
                       </p>
                     </div>
@@ -399,14 +399,14 @@ const OptionsApp = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-md">
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-md dark:bg-red-900/20">
                   <div className="flex items-center space-x-3">
-                    <Trash2 className="w-5 h-5 text-red-600" />
+                    <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
                     <div>
-                      <h3 className="text-sm font-medium text-red-700">
+                      <h3 className="text-sm font-medium text-red-700 dark:text-red-400">
                         清除所有数据
                       </h3>
-                      <p className="text-xs text-red-600">
+                      <p className="text-xs text-red-600 dark:text-red-400">
                         删除所有密码和设置（不可恢复）
                       </p>
                     </div>
@@ -422,28 +422,28 @@ const OptionsApp = () => {
           {/* 侧边栏 */}
           <div className="space-y-6">
             {/* 统计信息 */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="card p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">
                 统计信息
               </h2>
 
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">保存的密码</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">保存的密码</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
                     {stats.totalCredentials}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">网站数量</span>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">网站数量</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
                     {stats.totalDomains}
                   </span>
                 </div>
                 {stats.lastUpdated && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">最后更新</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">最后更新</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {new Date(stats.lastUpdated).toLocaleDateString("zh-CN")}
                     </span>
                   </div>
@@ -452,10 +452,10 @@ const OptionsApp = () => {
             </div>
 
             {/* 关于 */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">关于</h2>
+            <div className="card p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">关于</h2>
 
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <p>
                   <strong>版本:</strong> 1.0.0
                 </p>
@@ -467,8 +467,8 @@ const OptionsApp = () => {
                 </p>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   AutoPassfiller 使用最先进的加密技术保护您的密码安全，
                   所有数据都在本地加密存储，我们无法访问您的任何信息。
                 </p>
